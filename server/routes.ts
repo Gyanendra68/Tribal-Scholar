@@ -7,13 +7,14 @@ import { User, StudentProfile, ApplicationStatus, SchemeCode } from '../src/type
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { getUploadDir } from './runtime.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tribal-scholar-gov-india-secret-key-2026';
 
 export const apiRouter = express.Router();
 
 // Multer storage for document uploads
-const UPLOAD_DIR = path.resolve('uploads');
+export const UPLOAD_DIR = getUploadDir();
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
