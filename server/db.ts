@@ -3,8 +3,19 @@ import path from 'path';
 import initSqlJs, { Database } from 'sql.js';
 import bcrypt from 'bcryptjs';
 
-const DATA_DIR = path.resolve('data');
+// Vercel serverless functions use a temporary writable filesystem.
+// Local development continues to use the project's data/ directory.
+const IS_VERCEL = process.env.VERCEL === '1';
+
+const DATA_DIR = IS_VERCEL
+  ? '/tmp/tribalscholar-data'
+  : path.resolve('data');
+
 const DB_FILE = path.join(DATA_DIR, 'tribalscholar.sqlite');
+
+// This is the SQLite database bundled with the deployment.
+// It is used as the initial database when running on Vercel.
+const BUNDLED_DB_FILE = path.resolve('data', 'tribalscholar.sqlite');
 
 let db: Database;
 
@@ -16,21 +27,31 @@ export function getDb(): Database {
 }
 
 export function saveDb() {
-  if (db) {
-    const data = db.export();
-    fs.writeFileSync(DB_FILE, Buffer.from(data));
+  if (!db) {
+    return;
   }
+
+  const data = db.export();
+
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+
+  fs.writeFileSync(DB_FILE, Buffer.from(data));
 }
 
 export function queryAll<T = any>(sql: string, params: any[] = []): T[] {
   const stmt = db.prepare(sql);
-  stmt.bind(params);
-  const rows: T[] = [];
-  while (stmt.step()) {
-    rows.push(stmt.getAsObject() as unknown as T);
+  try {
+    stmt.bind(params);
+    const rows: T[] = [];
+    while (stmt.step()) {
+      rows.push(stmt.getAsObject() as unknown as T);
+    }
+    return rows;
+  } finally {
+    stmt.free();
   }
-  stmt.free();
-  return rows;
 }
 
 export function queryOne<T = any>(sql: string, params: any[] = []): T | null {
@@ -50,10 +71,21 @@ export async function initDatabase() {
 
   const SQL = await initSqlJs();
 
+  // Reuse the database created during the current Vercel instance/local run.
   if (fs.existsSync(DB_FILE)) {
+    console.log(`[DB] Loading SQLite database from ${DB_FILE}`);
     const fileBuffer = fs.readFileSync(DB_FILE);
     db = new SQL.Database(fileBuffer);
-  } else {
+  }
+  // On a fresh Vercel instance, start from the database bundled with the app.
+  else if (IS_VERCEL && fs.existsSync(BUNDLED_DB_FILE)) {
+    console.log('[DB] Vercel: loading bundled SQLite database');
+    const fileBuffer = fs.readFileSync(BUNDLED_DB_FILE);
+    db = new SQL.Database(fileBuffer);
+  }
+  // Local development without an existing database.
+  else {
+    console.log('[DB] Creating a new SQLite database');
     db = new SQL.Database();
   }
 
@@ -64,6 +96,7 @@ export async function initDatabase() {
   createSchema();
   seedInitialData();
   saveDb();
+
   console.log('TribalScholar Relational Database initialized successfully with SQLite WASM.');
 }
 
