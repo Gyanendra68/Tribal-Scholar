@@ -72,3 +72,4 @@ npm start
 - **Backend**: Node.js, Express, SQLite3 (better-sqlite3)
 - **PWA**: Service Worker with offline caching, Web App Manifest
 - **Security**: JWT Authentication, bcryptjs password hashing, role-based middleware
+# Tribal-Scholar
