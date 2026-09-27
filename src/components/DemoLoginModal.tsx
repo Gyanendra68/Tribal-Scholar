@@ -63,55 +63,45 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
       name: 'Sunita Bai Munda',
       email: 'student@example.com',
       password: 'Student@123',
-      badge: lang === 'hi' ? 'सत्यापित आवेदन' : 'Verified Applicant',
+      badge: 'Verified Applicant',
       badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      description: lang === 'hi'
-        ? 'झारखंड की एसटी छात्रा। पोस्ट-मैट्रिक आवेदन "सत्यापित" (VERIFIED) चरण पर है, स्वीकृति आदेश प्रतीक्षित।'
-        : 'ST student from Jharkhand. Holds an active Post-Matric application at "VERIFIED" stage awaiting sanction.'
+      description: 'ST student from Jharkhand. Holds an active Post-Matric application at "VERIFIED" stage awaiting sanction.'
     },
     {
       role: 'STUDENT',
       name: 'Birsa Soren',
       email: 'deficiency.student@example.com',
       password: 'Student@123',
-      badge: lang === 'hi' ? 'कमी निवारण (Deficiency)' : 'Deficiency Resolution',
+      badge: 'Deficiency Resolution',
       badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-      description: lang === 'hi'
-        ? 'ओडिशा के छात्र। आय प्रमाण पत्र पर अधिकारी द्वारा आपत्ति दर्ज की गई है। सुधार व पुनः प्रस्तुति का डेमो।'
-        : 'Student with active DEFICIENCY on Income Certificate. Perfect for demonstrating student correction & resubmission workflow.'
+      description: 'Student with active DEFICIENCY on Income Certificate. Perfect for demonstrating student correction & resubmission workflow.'
     },
     {
       role: 'STUDENT',
       name: 'Kavita Gond (PVTG)',
       email: 'fresh.student@example.com',
       password: 'Student@123',
-      badge: lang === 'hi' ? 'नवीन आवेदन डेमो' : 'Fresh Application',
+      badge: 'Fresh Application',
       badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-      description: lang === 'hi'
-        ? 'छत्तीसगढ़ की पीवीटीजी (माड़िया गोंड) छात्रा। एनआईटी रायपुर में अध्ययनरत। पात्रता जांच व नए आवेदन हेतु उपयुक्त।'
-        : 'PVTG (Maria Gond) student at NIT Raipur. Ideal for demonstrating the rule-based Eligibility Checker and 9-step Application submission.'
+      description: 'PVTG (Maria Gond) student at NIT Raipur. Ideal for demonstrating the rule-based Eligibility Checker and 9-step Application submission.'
     },
     {
       role: 'OFFICER',
       name: 'Dr. Rameshwar Oraon',
       email: 'officer@example.com',
       password: 'Officer@123',
-      badge: lang === 'hi' ? 'सत्यापन अधिकारी' : 'Verification Officer',
+      badge: 'Verification Officer',
       badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
-      description: lang === 'hi'
-        ? 'जिला सत्यापन अधिकारी। आवेदन जांच, आपत्ति दर्ज, स्वीकृति (Sanction) एवं मॉक डीबीटी भुगतान का अधिकार।'
-        : 'District Verification Officer. Has complete controls: Verify, Approve, Reject, Raise Deficiency, Issue Sanction, and Disburse DBT.'
+      description: 'District Verification Officer. Has complete controls: Verify, Approve, Reject, Raise Deficiency, Issue Sanction, and Disburse DBT.'
     },
     {
       role: 'ADMIN',
       name: 'Shri Arjun Meena, IAS',
       email: 'admin@example.com',
       password: 'Admin@123',
-      badge: lang === 'hi' ? 'मंत्रालय प्रशासक' : 'MoTA Central Admin',
+      badge: 'MoTA Central Admin',
       badgeColor: 'bg-rose-100 text-rose-800 border-rose-300',
-      description: lang === 'hi'
-        ? 'जनजातीय कार्य मंत्रालय। राष्ट्रीय विश्लेषण, यूडीआईएसई+/अपार स्वचालित छात्र पहचान इंजन एवं सिस्टम स्वास्थ्य।'
-        : 'MoTA Central Administrator. Access to National Analytics, UDISE+/APAAR/OTR Outreach identification, and integration monitors.'
+      description: 'MoTA Central Administrator. Access to National Analytics, UDISE+/APAAR/OTR Outreach identification, and integration monitors.'
     }
   ];
 
@@ -145,12 +135,12 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
     setError(null);
 
     if (regData.password !== regData.confirmPassword) {
-      setError(lang === 'hi' ? 'पासवर्ड और पुष्टि पासवर्ड मेल नहीं खाते हैं।' : 'Passwords do not match.');
+      setError('Passwords do not match.');
       return;
     }
 
     if (regData.password.length < 6) {
-      setError(lang === 'hi' ? 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।' : 'Password must be at least 6 characters.');
+      setError('Password must be at least 6 characters.');
       return;
     }
 
@@ -176,10 +166,10 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
             </span>
             <h2 className="text-lg font-bold">
               {activeTab === 'register'
-                ? (lang === 'hi' ? 'नया छात्र खाता बनाएं (पंजीकरण)' : 'Create Student Account / Register')
+                ? ('Create Student Account / Register')
                 : activeTab === 'signin'
-                ? (lang === 'hi' ? 'खाते में प्रवेश करें (लॉगिन)' : 'Sign In to Your Account')
-                : (lang === 'hi' ? 'त्वरित डेमो भूमिका चयन' : 'Demo Account Selector')}
+                ? ('Sign In to Your Account')
+                : ('Demo Account Selector')}
             </h2>
           </div>
           <button
@@ -201,7 +191,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
             }`}
           >
             <KeyRound className="w-3.5 h-3.5" />
-            <span>{lang === 'hi' ? '1-क्लिक डेमो' : '1-Click Demo'}</span>
+            <span>{'1-Click Demo'}</span>
           </button>
 
           <button
@@ -213,7 +203,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
             }`}
           >
             <LogIn className="w-3.5 h-3.5" />
-            <span>{lang === 'hi' ? 'लॉगिन' : 'Sign In'}</span>
+            <span>{'Sign In'}</span>
           </button>
 
           <button
@@ -225,7 +215,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
             }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
-            <span>{lang === 'hi' ? 'खाता बनाएं (Register)' : 'Create Account'}</span>
+            <span>{'Create Account'}</span>
           </button>
         </div>
 
@@ -241,9 +231,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
           {activeTab === 'demo' && (
             <div className="space-y-3">
               <p className="text-xs text-slate-600 mb-2">
-                {lang === 'hi'
-                  ? 'मूल्यांकनकर्ता किसी भी भूमिका पर क्लिक करके सीधे प्रवेश कर सकते हैं:'
-                  : 'Click on any scenario below to log in immediately with pre-configured mock data:'}
+                {'Click on any scenario below to log in immediately with pre-configured mock data:'}
               </p>
 
               {demoAccounts.map((account) => (
@@ -292,7 +280,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
                   onClick={() => setActiveTab('register')}
                   className="text-xs font-bold text-blue-700 hover:underline"
                 >
-                  {lang === 'hi' ? 'नया छात्र खाता बनाना चाहते हैं? यहाँ क्लिक करें →' : 'Want to create a brand new student account? Click here →'}
+                  {'Want to create a brand new student account? Click here →'}
                 </button>
               </div>
             </div>
@@ -334,13 +322,13 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
               </button>
 
               <div className="pt-3 border-t text-center text-xs text-slate-600">
-                <span>{lang === 'hi' ? 'खाता नहीं है? ' : "Don't have an account? "}</span>
+                <span>{"Don't have an account? "}</span>
                 <button
                   type="button"
                   onClick={() => setActiveTab('register')}
                   className="font-bold text-emerald-700 hover:underline ml-1"
                 >
-                  {lang === 'hi' ? 'यहाँ नया खाता बनाएं' : 'Create an Account'}
+                  {'Create an Account'}
                 </button>
               </div>
             </form>
@@ -352,7 +340,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'पूरा नाम *' : 'Full Name *'}
+                    {'Full Name *'}
                   </label>
                   <input
                     type="text"
@@ -366,7 +354,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'ईमेल पता *' : 'Email Address *'}
+                    {'Email Address *'}
                   </label>
                   <input
                     type="email"
@@ -380,7 +368,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'मोबाइल नंबर *' : 'Mobile Number *'}
+                    {'Mobile Number *'}
                   </label>
                   <input
                     type="tel"
@@ -394,7 +382,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'पासवर्ड *' : 'Password *'}
+                    {'Password *'}
                   </label>
                   <input
                     type="password"
@@ -408,7 +396,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'पासवर्ड पुष्टि करें *' : 'Confirm Password *'}
+                    {'Confirm Password *'}
                   </label>
                   <input
                     type="password"
@@ -422,7 +410,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'एसटी प्रमाण पत्र क्रमांक' : 'ST Certificate Number'}
+                    {'ST Certificate Number'}
                   </label>
                   <input
                     type="text"
@@ -435,7 +423,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'राज्य' : 'State'}
+                    {'State'}
                   </label>
                   <select
                     value={regData.state}
@@ -456,7 +444,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'शिक्षण संस्थान का नाम' : 'Institution Name'}
+                    {'Institution Name'}
                   </label>
                   <input
                     type="text"
@@ -469,7 +457,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'वार्षिक पारिवारिक आय (₹)' : 'Family Annual Income (₹)'}
+                    {'Family Annual Income (₹)'}
                   </label>
                   <input
                     type="number"
@@ -489,7 +477,7 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
                   className="w-4 h-4 text-emerald-600 rounded"
                 />
                 <label htmlFor="regPvtg" className="text-xs font-bold text-slate-700">
-                  {lang === 'hi' ? 'विशेष रूप से कमजोर जनजातीय समूह (PVTG) से संबंधित' : 'Belongs to Particularly Vulnerable Tribal Group (PVTG)'}
+                  {'Belongs to Particularly Vulnerable Tribal Group (PVTG)'}
                 </label>
               </div>
 
@@ -499,17 +487,17 @@ export const DemoLoginModal: React.FC<DemoLoginModalProps> = ({
                 className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-lg font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 mt-2"
               >
                 <UserPlus className="w-4 h-4" />
-                <span>{isSubmitting ? 'Registering...' : (lang === 'hi' ? 'खाता पंजीकृत करें एवं प्रवेश करें' : 'Register & Create Account')}</span>
+                <span>{isSubmitting ? 'Registering...' : ('Register & Create Account')}</span>
               </button>
 
               <div className="pt-2 border-t text-center text-xs text-slate-600">
-                <span>{lang === 'hi' ? 'पहले से खाता है? ' : 'Already have an account? '}</span>
+                <span>{'Already have an account? '}</span>
                 <button
                   type="button"
                   onClick={() => setActiveTab('signin')}
                   className="font-bold text-blue-700 hover:underline ml-1"
                 >
-                  {lang === 'hi' ? 'यहाँ लॉगिन करें' : 'Sign In here'}
+                  {'Sign In here'}
                 </button>
               </div>
             </form>

@@ -101,21 +101,21 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({ onStartA
         <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
             <Filter className="w-3.5 h-3.5 text-blue-700" />
-            <span>{lang === 'hi' ? 'पात्रता मानदंड सिम्युलेटर (परीक्षण हेतु बदलें)' : 'Eligibility Parameter Simulator (Test What-If Scenarios)'}</span>
+            <span>{'Eligibility Parameter Simulator (Test What-If Scenarios)'}</span>
           </h3>
           <button
             onClick={() => checkEligibility()}
             className="text-xs text-blue-700 font-semibold hover:underline flex items-center gap-1"
           >
             <RefreshCw className="w-3 h-3" />
-            <span>{lang === 'hi' ? 'रीसेट' : 'Recalculate'}</span>
+            <span>{'Recalculate'}</span>
           </button>
         </div>
 
         <form onSubmit={handleSimulate} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
           <div>
             <label className="block text-[11px] font-bold text-slate-600 mb-1">
-              {lang === 'hi' ? 'वार्षिक आय (₹)' : 'Annual Income (₹)'}
+              {'Annual Income (₹)'}
             </label>
             <input
               type="number"
@@ -127,7 +127,7 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({ onStartA
 
           <div>
             <label className="block text-[11px] font-bold text-slate-600 mb-1">
-              {lang === 'hi' ? 'अध्ययन स्तर' : 'Academic Level'}
+              {'Academic Level'}
             </label>
             <select
               value={simLevel}
@@ -145,7 +145,7 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({ onStartA
 
           <div>
             <label className="block text-[11px] font-bold text-slate-600 mb-1">
-              {lang === 'hi' ? 'संस्थान का प्रकार' : 'Institution Type'}
+              {'Institution Type'}
             </label>
             <select
               value={simInstType}
@@ -162,7 +162,7 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({ onStartA
 
           <div>
             <label className="block text-[11px] font-bold text-slate-600 mb-1">
-              {lang === 'hi' ? 'पूर्व कक्षा में अंक (%)' : 'Qualifying Marks (%)'}
+              {'Qualifying Marks (%)'}
             </label>
             <input
               type="number"
@@ -177,7 +177,7 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({ onStartA
               type="submit"
               className="w-full py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-sm transition"
             >
-              {lang === 'hi' ? 'जांचें' : 'Check Rules'}
+              {'Check Rules'}
             </button>
           </div>
         </form>
@@ -212,7 +212,7 @@ export const EligibilityChecker: React.FC<EligibilityCheckerProps> = ({ onStartA
                       {res.schemeCode}
                     </span>
                     <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                      {lang === 'hi' ? res.schemeNameHi : res.schemeNameEn}
+                      {res.schemeNameEn}
                     </h3>
                   </div>
 

@@ -47,7 +47,7 @@ export const MyApplicationsList: React.FC<MyApplicationsListProps> = ({
         <div>
           <h2 className="text-xl font-extrabold text-slate-900">{t.navMyApplications}</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            {lang === 'hi' ? 'आपके द्वारा प्रस्तुत छात्रवृत्ति आवेदनों की सूची व स्थिति' : 'Track and manage your submitted scholarship applications'}
+            {'Track and manage your submitted scholarship applications'}
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export const MyApplicationsList: React.FC<MyApplicationsListProps> = ({
                     {app.applicationNumber}
                   </span>
                   <h3 className="text-base font-bold text-slate-900">
-                    {lang === 'hi' ? app.schemeNameHi : app.schemeNameEn}
+                    {app.schemeNameEn}
                   </h3>
                 </div>
 

@@ -68,12 +68,10 @@ export const ProfileManagement: React.FC = () => {
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900">
-            {lang === 'hi' ? 'छात्र प्रोफाइल प्रबंधन' : 'Student Profile Management'}
+            {'Student Profile Management'}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            {lang === 'hi'
-              ? 'आपकी व्यक्तिगत, शैक्षणिक, एसटी श्रेणी एवं बैंक विवरण'
-              : 'Your personal, academic, ST category and bank details'}
+            {'Your personal, academic, ST category and bank details'}
           </p>
         </div>
 

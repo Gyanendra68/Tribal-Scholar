@@ -124,12 +124,10 @@ export const DeficiencyResolution: React.FC<DeficiencyResolutionProps> = ({ onSu
       <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-sm max-w-lg mx-auto">
         <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto mb-3" />
         <h3 className="text-base font-bold text-slate-900">
-          {lang === 'hi' ? 'कोई सक्रिय आपत्ति दर्ज नहीं है' : 'No Open Deficiencies'}
+          {'No Open Deficiencies'}
         </h3>
         <p className="text-xs text-slate-600 mt-1">
-          {lang === 'hi'
-            ? 'आपके छात्रवृत्ति आवेदन पर वर्तमान में कोई आपत्ति या कमी लंबित नहीं है।'
-            : 'Your scholarship applications have no pending objections from the Verification Officer.'}
+          {'Your scholarship applications have no pending objections from the Verification Officer.'}
         </p>
       </div>
     );
@@ -161,14 +159,14 @@ export const DeficiencyResolution: React.FC<DeficiencyResolutionProps> = ({ onSu
           <div>
             <span className="font-bold text-red-900 block">{t.deficiencyReason}:</span>
             <p className="text-slate-700 mt-0.5 leading-relaxed">
-              {lang === 'hi' ? deficiency.reasonHi : deficiency.reasonEn}
+              {deficiency.reasonEn}
             </p>
           </div>
 
           <div>
             <span className="font-bold text-red-900 block">{t.requiredAction}:</span>
             <p className="text-slate-700 mt-0.5 leading-relaxed">
-              {lang === 'hi' ? deficiency.requiredActionHi : deficiency.requiredActionEn}
+              {deficiency.requiredActionEn}
             </p>
           </div>
 
@@ -187,7 +185,7 @@ export const DeficiencyResolution: React.FC<DeficiencyResolutionProps> = ({ onSu
       ) : (
         <form onSubmit={handleResubmit} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
           <h3 className="text-sm font-bold text-slate-900 border-b pb-2">
-            {lang === 'hi' ? 'संशोधित दस्तावेज अपलोड व स्पष्टीकरण' : 'Upload Corrected Document & Submit Explanation'}
+            {'Upload Corrected Document & Submit Explanation'}
           </h3>
 
           <div>
@@ -216,7 +214,7 @@ export const DeficiencyResolution: React.FC<DeficiencyResolutionProps> = ({ onSu
             <textarea
               value={resolutionNotes}
               onChange={(e) => setResolutionNotes(e.target.value)}
-              placeholder={lang === 'hi' ? 'सुधार के संबंध में टिप्पणी दर्ज करें...' : 'Explain the correction made...'}
+              placeholder={'Explain the correction made...'}
               rows={3}
               className="w-full px-3 py-2 border rounded-xl text-xs"
             />

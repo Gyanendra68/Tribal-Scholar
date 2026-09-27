@@ -170,7 +170,7 @@ function MainApp() {
                 }`}
               >
                 <User className="w-3.5 h-3.5" />
-                <span>{lang === 'hi' ? 'प्रोफाइल' : 'Profile'}</span>
+                <span>{'Profile'}</span>
               </button>
             </>
           )}
@@ -228,7 +228,7 @@ function MainApp() {
                 onClick={() => openAuthModal('register')}
                 className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition"
               >
-                {lang === 'hi' ? 'नया खाता बनाएं' : 'Create Account'}
+                {'Create Account'}
               </button>
               <button
                 onClick={() => openAuthModal('demo')}

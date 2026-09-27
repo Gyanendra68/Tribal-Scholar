@@ -17,9 +17,7 @@ export const JagoChatbot: React.FC<JagoChatbotProps> = ({ onNavigate }) => {
     {
       id: 'init_msg',
       sender: 'jago',
-      text: lang === 'hi'
-        ? `नमस्ते ${user?.fullName || ''}! मैं जागो (JAGO) हूँ - जनजातीय कार्य मंत्रालय का छात्रवृत्ति सहायता सहायक। आप मुझसे अपने आवेदन की स्थिति, पात्रता, आवश्यक दस्तावेज या डीबीटी भुगतान के विषय में कभी भी पूछ सकते हैं।`
-        : `Hello ${user?.fullName || ''}! I am JAGO, your scholarship assistance guide. Ask me about your real-time application status, eligibility, documents, or DBT payments.`,
+      text: `Hello ${user?.fullName || ''}! I am JAGO, your scholarship assistance guide. Ask me about your real-time application status, eligibility, documents, or DBT payments.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -71,9 +69,7 @@ export const JagoChatbot: React.FC<JagoChatbotProps> = ({ onNavigate }) => {
         {
           id: `err_${Date.now()}`,
           sender: 'jago',
-          text: lang === 'hi'
-            ? 'क्षमा करें, सर्वर से संपर्क नहीं हो पाया। कृपया पुनः प्रयास करें।'
-            : 'Sorry, could not connect to MoTA servers. Please try again.',
+          text: 'Sorry, could not connect to MoTA servers. Please try again.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);

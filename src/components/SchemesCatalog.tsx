@@ -36,7 +36,6 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
     const term = searchTerm.toLowerCase();
     return (
       s.nameEn.toLowerCase().includes(term) ||
-      s.nameHi.toLowerCase().includes(term) ||
       s.code.toLowerCase().includes(term) ||
       s.descriptionEn.toLowerCase().includes(term)
     );
@@ -51,9 +50,7 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
             {t.navSchemes}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            {lang === 'hi'
-              ? 'जनजातीय कार्य मंत्रालय, भारत सरकार द्वारा संचालित 5 एकीकृत छात्रवृत्ति एवं अध्येतावृत्ति योजनाएं'
-              : '5 Unified Central Scholarship & Fellowship Schemes administered by Ministry of Tribal Affairs (MoTA)'}
+            {'5 Unified Central Scholarship & Fellowship Schemes administered by Ministry of Tribal Affairs (MoTA)'}
           </p>
         </div>
 
@@ -63,7 +60,7 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={lang === 'hi' ? 'योजना खोजें...' : 'Search schemes...'}
+            placeholder={'Search schemes...'}
             className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
         </div>
@@ -93,7 +90,7 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
                     </span>
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                    {lang === 'hi' ? scheme.nameHi : scheme.nameEn}
+                    {scheme.nameEn}
                   </h3>
                 </div>
 
@@ -107,7 +104,7 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
               </div>
 
               <p className="text-xs sm:text-sm text-slate-600 mt-3 leading-relaxed">
-                {lang === 'hi' ? scheme.descriptionHi : scheme.descriptionEn}
+                {scheme.descriptionEn}
               </p>
 
               {/* Key Specs Card */}
@@ -117,11 +114,11 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
                   <span className="font-bold text-slate-800 text-sm">₹{scheme.maxIncomeLimit.toLocaleString('en-IN')}/year</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[10px] block font-bold uppercase">{lang === 'hi' ? 'पात्र कक्षाएं' : 'Eligible Classes'}</span>
+                  <span className="text-slate-400 text-[10px] block font-bold uppercase">{'Eligible Classes'}</span>
                   <span className="font-medium text-slate-800 line-clamp-1">{scheme.eligibleClasses}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[10px] block font-bold uppercase">{lang === 'hi' ? 'नमूना आवंटन' : 'Sample Sanction'}</span>
+                  <span className="text-slate-400 text-[10px] block font-bold uppercase">{'Sample Sanction'}</span>
                   <span className="font-bold text-emerald-700 text-sm">₹{scheme.sampleSanctionAmount.toLocaleString('en-IN')}</span>
                 </div>
               </div>
@@ -129,10 +126,10 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
               {/* Benefits */}
               <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 text-xs text-emerald-950 mb-3">
                 <span className="font-bold text-emerald-900 block mb-1">
-                  {lang === 'hi' ? 'योजना के लाभ एवं अनुदान:' : 'Scheme Benefits & Grants:'}
+                  {'Scheme Benefits & Grants:'}
                 </span>
                 <p className="leading-relaxed">
-                  {lang === 'hi' ? scheme.benefitsHi : scheme.benefitsEn}
+                  {scheme.benefitsEn}
                 </p>
               </div>
 
@@ -144,7 +141,7 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
                     className="flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-800"
                   >
                     <HelpCircle className="w-3.5 h-3.5" />
-                    <span>{lang === 'hi' ? 'अक्सर पूछे जाने वाले प्रश्न (FAQ)' : 'Frequently Asked Questions (FAQ)'}</span>
+                    <span>{'Frequently Asked Questions (FAQ)'}</span>
                     {expandedFaqSchemeId === scheme.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </button>
 
@@ -153,10 +150,10 @@ export const SchemesCatalog: React.FC<SchemesCatalogProps> = ({ onStartApplicati
                       {scheme.faqs.map((faq, i) => (
                         <div key={i} className="text-xs">
                           <p className="font-bold text-slate-800">
-                            Q: {lang === 'hi' ? faq.questionHi : faq.questionEn}
+                            Q: {faq.questionEn}
                           </p>
                           <p className="text-slate-600 mt-0.5 leading-relaxed">
-                            A: {lang === 'hi' ? faq.answerHi : faq.answerEn}
+                            A: {faq.answerEn}
                           </p>
                         </div>
                       ))}

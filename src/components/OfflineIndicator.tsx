@@ -17,24 +17,24 @@ export const OfflineIndicator: React.FC = () => {
         <div className="flex items-center gap-2 bg-amber-600 text-white px-2 py-1 rounded">
           <WifiOff className="w-3.5 h-3.5 animate-pulse" />
           <span>
-            {lang === 'hi' ? 'ऑफ़लाइन मोड' : 'Offline Mode'}
-            {pendingCount > 0 && ` (${pendingCount} ${lang === 'hi' ? 'लंबित' : 'pending'})`}
+            {'Offline Mode'}
+            {pendingCount > 0 && ` (${pendingCount} ${'pending'})`}
           </span>
         </div>
       ) : syncState === 'SYNCING' ? (
         <div className="flex items-center gap-2 bg-blue-700 text-white px-2 py-1 rounded">
           <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-          <span>{lang === 'hi' ? 'सिंक हो रहा है...' : 'Syncing data...'}</span>
+          <span>{'Syncing data...'}</span>
         </div>
       ) : syncState === 'SYNCED' ? (
         <div className="flex items-center gap-2 bg-emerald-700 text-white px-2 py-1 rounded">
           <CheckCircle className="w-3.5 h-3.5" />
-          <span>{lang === 'hi' ? 'डेटा सिंक संपन्न' : 'Data Synced'}</span>
+          <span>{'Data Synced'}</span>
         </div>
       ) : syncState === 'FAILED' ? (
         <div className="flex items-center gap-2 bg-red-700 text-white px-2 py-1 rounded cursor-pointer" onClick={triggerSync}>
           <AlertTriangle className="w-3.5 h-3.5" />
-          <span>{lang === 'hi' ? 'सिंक विफल (पुनः प्रयास करें)' : 'Sync Failed (Tap to retry)'}</span>
+          <span>{'Sync Failed (Tap to retry)'}</span>
         </div>
       ) : null}
     </div>

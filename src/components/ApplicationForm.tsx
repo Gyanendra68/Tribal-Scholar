@@ -194,7 +194,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   // Submit Final Application
   const handleSubmit = async () => {
     if (!formData.declarationSigned) {
-      setError(lang === 'hi' ? 'कृपया आगे बढ़ने हेतु घोषणा स्वीकार करें।' : 'Please accept the declaration to proceed.');
+      setError('Please accept the declaration to proceed.');
       return;
     }
 
@@ -267,15 +267,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           <CheckCircle2 className="w-10 h-10" />
         </div>
         <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-          {lang === 'hi' ? 'सफलतापूर्वक प्रस्तुत' : 'Submission Successful'}
+          {'Submission Successful'}
         </span>
         <h2 className="text-2xl font-extrabold text-slate-900 mt-3">
-          {lang === 'hi' ? 'छात्रवृत्ति आवेदन जमा हुआ' : 'Application Submitted to MoTA'}
+          {'Application Submitted to MoTA'}
         </h2>
         <p className="text-xs text-slate-600 mt-2">
-          {lang === 'hi'
-            ? 'आपका आवेदन स्वचालित सत्यापन कतार में प्रेषित कर दिया गया है। डिजीलॉकर एवं अपार द्वारा प्रारंभिक जांच जारी है।'
-            : 'Your scholarship application has been queued for automated verification across DigiLocker, APAAR, and UIDAI registries.'}
+          {'Your scholarship application has been queued for automated verification across DigiLocker, APAAR, and UIDAI registries.'}
         </p>
 
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 my-6">
@@ -287,7 +285,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           onClick={() => onSubmitted(submissionSuccessId)}
           className="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl shadow-md transition"
         >
-          {lang === 'hi' ? 'डैशबोर्ड पर जाएं एवं स्थिति ट्रैक करें' : 'Go to Dashboard & Track Application'}
+          {'Go to Dashboard & Track Application'}
         </button>
       </div>
     );
@@ -304,7 +302,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div>
             <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
-              {lang === 'hi' ? 'एकीकृत छात्रवृत्ति आवेदन पत्र (MoTA)' : 'Unified MoTA Scholarship Form'}
+              {'Unified MoTA Scholarship Form'}
             </span>
             <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
               {stepsList[currentStep - 1]}
@@ -350,7 +348,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <strong className="font-bold block text-sm mb-0.5">
-              {lang === 'hi' ? 'आवेदन अस्वीकृत / त्रुटि' : 'Application Validation Notice'}
+              {'Application Validation Notice'}
             </strong>
             <span>{error}</span>
           </div>
@@ -644,7 +642,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   />
                   <div>
                     <span className="text-xs font-bold text-slate-900 block">
-                      {lang === 'hi' ? s.nameHi : s.nameEn}
+                      {s.nameEn}
                     </span>
                     <span className="text-[11px] text-slate-500 block mt-0.5">
                       {t.maxIncomeLimit}: ₹{s.maxIncomeLimit.toLocaleString('en-IN')} | {s.eligibleClasses}
@@ -669,9 +667,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             </div>
 
             <p className="text-xs text-slate-600">
-              {lang === 'hi'
-                ? 'यदि आपने पहले से डिजिटल वॉलेट में दस्तावेज अपलोड किए हैं, तो आप उन्हें सीधे पुनः उपयोग कर सकते हैं:'
-                : 'You can attach previously uploaded valid documents directly from your Document Wallet:'}
+              {'You can attach previously uploaded valid documents directly from your Document Wallet:'}
             </p>
 
             {walletDocs.length > 0 ? (
@@ -814,7 +810,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
 
               <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                 <span className="font-bold text-slate-800 block mb-1">Target Scheme</span>
-                <div className="font-bold text-blue-700">{lang === 'hi' ? selectedScheme?.nameHi : selectedScheme?.nameEn}</div>
+                <div className="font-bold text-blue-700">{selectedScheme?.nameEn}</div>
                 <div>Academic Year: <strong>2026-27</strong></div>
                 <div>Annual Income: <strong>₹{formData.familyIncomeDetails.familyAnnualIncome.toLocaleString('en-IN')}</strong></div>
               </div>

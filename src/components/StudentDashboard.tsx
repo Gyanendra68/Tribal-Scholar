@@ -111,16 +111,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
             </div>
 
             <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              {user ? (profile?.fullName || user.fullName) : (lang === 'hi' ? 'नमस्ते, जनजातीय छात्र / आवेदक' : 'Welcome, Tribal Student / Applicant')}
+              {user ? (profile?.fullName || user.fullName) : ('Welcome, Tribal Student / Applicant')}
             </h2>
             <div className="mt-1 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-blue-100">
               <span className="flex items-center gap-1">
                 <Building className="w-3.5 h-3.5 text-amber-300" />
-                {profile?.institutionName || (lang === 'hi' ? 'मान्यता प्राप्त शिक्षण संस्थान' : 'Recognized Institutions')}
+                {profile?.institutionName || ('Recognized Institutions')}
               </span>
               <span className="flex items-center gap-1">
                 <BookOpen className="w-3.5 h-3.5 text-amber-300" />
-                {profile ? `${profile.courseName} (${profile.classYear})` : (lang === 'hi' ? 'कक्षा 9 से पीएचडी तक 5 योजनाएं' : 'Pre-Matric to Ph.D. Schemes')}
+                {profile ? `${profile.courseName} (${profile.classYear})` : ('Pre-Matric to Ph.D. Schemes')}
               </span>
               {profile?.stCertificateNo && (
                 <span>
@@ -136,7 +136,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 onClick={() => onNavigate('profile')}
                 className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-semibold transition backdrop-blur-sm"
               >
-                {lang === 'hi' ? 'प्रोफाइल देखें / सुधारें' : 'Manage Profile'}
+                {'Manage Profile'}
               </button>
             ) : null}
             <button
@@ -162,9 +162,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 {t.deficiencyBannerTitle}
               </h3>
               <p className="text-xs text-red-700 mt-0.5">
-                {lang === 'hi'
-                  ? `आवेदन संख्या ${activeApp.applicationNumber} में सत्यापन अधिकारी द्वारा आपत्ति दर्ज की गई है। कृपया समय सीमा से पूर्व संशोधित दस्तावेज अपलोड करें।`
-                  : `Your application (${activeApp.applicationNumber}) requires attention. The Verification Officer has flagged a document issue.`}
+                {`Your application (${activeApp.applicationNumber}) requires attention. The Verification Officer has flagged a document issue.`}
               </p>
             </div>
           </div>
@@ -194,19 +192,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
               <div>
-                <span className="text-[11px] text-slate-500 block">{lang === 'hi' ? 'आवेदन संख्या' : 'Application ID'}</span>
+                <span className="text-[11px] text-slate-500 block">{'Application ID'}</span>
                 <span className="font-mono font-bold text-slate-900 text-sm">{activeApp.applicationNumber}</span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 block">{lang === 'hi' ? 'योजना' : 'Scheme'}</span>
-                <span className="font-bold text-slate-900 text-sm line-clamp-1">{lang === 'hi' ? activeApp.schemeNameHi : activeApp.schemeNameEn}</span>
+                <span className="text-[11px] text-slate-500 block">{'Scheme'}</span>
+                <span className="font-bold text-slate-900 text-sm line-clamp-1">{activeApp.schemeNameEn}</span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 block">{lang === 'hi' ? 'शैक्षणिक वर्ष' : 'Academic Year'}</span>
+                <span className="text-[11px] text-slate-500 block">{'Academic Year'}</span>
                 <span className="font-bold text-slate-900 text-sm">{activeApp.academicYear}</span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 block">{lang === 'hi' ? 'अंतिम अपडेट' : 'Last Updated'}</span>
+                <span className="text-[11px] text-slate-500 block">{'Last Updated'}</span>
                 <span className="font-medium text-slate-700 text-xs">{new Date(activeApp.updatedAt).toLocaleDateString()}</span>
               </div>
             </div>
@@ -216,12 +214,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 <Clock className="w-3.5 h-3.5 text-blue-600" />
                 <span>
                   {activeApp.status === 'VERIFIED'
-                    ? (lang === 'hi' ? 'दस्तावेज सत्यापित। स्वीकृति आदेश प्रक्रियाधीन।' : 'Documents verified. Sanction order in progress.')
+                    ? ('Documents verified. Sanction order in progress.')
                     : activeApp.status === 'SANCTIONED'
-                    ? (lang === 'hi' ? 'स्वीकृति आदेश जारी। डीबीटी भुगतान कतार में।' : 'Sanction issued. DBT batch queuing.')
+                    ? ('Sanction issued. DBT batch queuing.')
                     : activeApp.status === 'DISBURSED'
-                    ? (lang === 'hi' ? 'छात्रवृत्ति राशि खाते में अंतरित हो चुकी है।' : 'Scholarship disbursed via DBT to bank account.')
-                    : (lang === 'hi' ? 'सत्यापन अधिकारी की समीक्षा कतार में।' : 'In verification review queue.')}
+                    ? ('Scholarship disbursed via DBT to bank account.')
+                    : ('In verification review queue.')}
                 </span>
               </div>
 
@@ -270,7 +268,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 {t.navEligibility}
               </span>
               <span className="text-[11px] text-slate-500 mt-0.5 block">
-                {lang === 'hi' ? '5 योजनाओं में योग्यता जांचें' : 'Evaluate against 5 schemes'}
+                {'Evaluate against 5 schemes'}
               </span>
             </div>
           </button>
@@ -287,7 +285,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 {t.navSchemes}
               </span>
               <span className="text-[11px] text-slate-500 mt-0.5 block">
-                {lang === 'hi' ? 'प्री, पोस्ट, टॉप क्लास, फेलोशिप' : 'Pre, Post, Top Class, NFST, NOS'}
+                {'Pre, Post, Top Class, NFST, NOS'}
               </span>
             </div>
           </button>
@@ -304,7 +302,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 {t.navDocumentWallet}
               </span>
               <span className="text-[11px] text-slate-500 mt-0.5 block">
-                {lang === 'hi' ? 'दस्तावेज अपलोड व पुनः उपयोग' : 'Upload & reuse documents'}
+                {'Upload & reuse documents'}
               </span>
             </div>
           </button>
@@ -321,7 +319,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 {t.navPayments}
               </span>
               <span className="text-[11px] text-slate-500 mt-0.5 block">
-                {lang === 'hi' ? 'पीएफएमएस डीबीटी विवरण' : 'PFMS Direct Transfer status'}
+                {'PFMS Direct Transfer status'}
               </span>
             </div>
           </button>
@@ -339,7 +337,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
               onClick={() => onNavigate('notifications')}
               className="text-xs text-blue-700 hover:underline font-semibold"
             >
-              {lang === 'hi' ? 'सभी देखें' : 'View all'}
+              {'View all'}
             </button>
           </div>
 
@@ -352,14 +350,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate, 
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-900">
-                      {lang === 'hi' ? n.titleHi : n.titleEn}
+                      {n.titleEn}
                     </span>
                     <span className="text-[10px] text-slate-400">
                       {new Date(n.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    {lang === 'hi' ? n.messageHi : n.messageEn}
+                    {n.messageEn}
                   </p>
                 </div>
               </div>

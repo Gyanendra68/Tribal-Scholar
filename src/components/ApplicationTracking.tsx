@@ -114,7 +114,7 @@ export const ApplicationTracking: React.FC<ApplicationTrackingProps> = ({ applic
             </span>
           </div>
           <p className="text-xs text-slate-600 mt-1">
-            {lang === 'hi' ? application.schemeNameHi : application.schemeNameEn} • Academic Year: {application.academicYear}
+            {application.schemeNameEn} • Academic Year: {application.academicYear}
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export const ApplicationTracking: React.FC<ApplicationTrackingProps> = ({ applic
       {/* Visual Timeline Stepper */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
         <h3 className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-wider text-xs">
-          {lang === 'hi' ? 'आवेदन प्रगति के प्रमुख चरण' : 'Application Lifecycle Stages'}
+          {'Application Lifecycle Stages'}
         </h3>
 
         <div className="relative pl-6 sm:pl-8 border-l-2 border-slate-200 space-y-8 ml-3 sm:ml-4">
@@ -187,7 +187,7 @@ export const ApplicationTracking: React.FC<ApplicationTrackingProps> = ({ applic
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-blue-700" />
-            <span>{lang === 'hi' ? 'डिजिटल रजिस्ट्री सत्यापन परिणाम (Demo Adapters)' : 'Digital Registry Verification Outcomes'}</span>
+            <span>{'Digital Registry Verification Outcomes'}</span>
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

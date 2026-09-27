@@ -64,7 +64,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({ onNavigate
           <div>
             <h2 className="text-xl font-extrabold text-slate-900">{t.navNotifications}</h2>
             <p className="text-xs text-slate-500">
-              {lang === 'hi' ? 'महत्वपूर्ण सूचनाएं एवं आवेदन अपडेट' : 'Important alerts and application status updates'}
+              {'Important alerts and application status updates'}
             </p>
           </div>
         </div>
@@ -119,14 +119,14 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({ onNavigate
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h4 className={`text-xs font-bold ${!n.isRead ? 'text-slate-900' : 'text-slate-700'}`}>
-                    {lang === 'hi' ? n.titleHi : n.titleEn}
+                    {n.titleEn}
                   </h4>
                   <span className="text-[10px] text-slate-400">
                     {new Date(n.createdAt).toLocaleDateString()}
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  {lang === 'hi' ? n.messageHi : n.messageEn}
+                  {n.messageEn}
                 </p>
 
                 {n.type === 'DEFICIENCY' && onNavigate && (

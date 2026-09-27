@@ -56,12 +56,10 @@ export const PaymentTracking: React.FC = () => {
         <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-sm">
           <CreditCard className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <h3 className="text-sm font-bold text-slate-900">
-            {lang === 'hi' ? 'कोई भुगतान आदेश लंबित नहीं है' : 'No Payment Records Found'}
+            {'No Payment Records Found'}
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            {lang === 'hi'
-              ? 'सत्यापन अधिकारी द्वारा स्वीकृति आदेश जारी करने के उपरांत डीबीटी विवरण यहाँ प्रदर्शित होगा।'
-              : 'Once your application is sanctioned by the Department Officer, DBT transaction details will appear here.'}
+            {'Once your application is sanctioned by the Department Officer, DBT transaction details will appear here.'}
           </p>
         </div>
       ) : (

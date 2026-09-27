@@ -84,7 +84,7 @@ export const OfficerDashboard: React.FC = () => {
   };
 
   const handleReject = async (appId: string) => {
-    const reason = prompt(lang === 'hi' ? 'अस्वीकृति का कारण दर्ज करें:' : 'Enter rejection reason:');
+    const reason = prompt('Enter rejection reason:');
     if (!reason) return;
     try {
       setActionLoading(true);
@@ -108,9 +108,7 @@ export const OfficerDashboard: React.FC = () => {
           deficiencyType: 'DOCUMENT_DEFICIENCY',
           fieldName: deficiencyField,
           reasonEn: deficiencyReason || 'Uploaded certificate is unclear or expired.',
-          reasonHi: 'अपलोड किया गया प्रमाण पत्र अस्पष्ट या अवधि पार है।',
           requiredActionEn: 'Upload clear valid certificate issued by Competent Revenue Authority.',
-          requiredActionHi: 'सक्षम राजस्व प्राधिकारी द्वारा जारी स्पष्ट व वैध प्रमाण पत्र अपलोड करें।',
           deadline: deficiencyDeadline
         })
       });

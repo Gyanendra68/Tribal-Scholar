@@ -68,7 +68,7 @@ export const DocumentWallet: React.FC<DocumentWalletProps> = ({ onOpenAuth }) =>
   };
 
   const handleDelete = async (docId: string) => {
-    if (!confirm(lang === 'hi' ? 'क्या आप इस दस्तावेज को हटाना चाहते हैं?' : 'Are you sure you want to remove this document?')) return;
+    if (!confirm('Are you sure you want to remove this document?')) return;
     try {
       await apiFetch(`/api/documents/${docId}`, { method: 'DELETE' });
       setDocuments(documents.filter((d) => d.id !== docId));
@@ -86,9 +86,7 @@ export const DocumentWallet: React.FC<DocumentWalletProps> = ({ onOpenAuth }) =>
         <div>
           <h2 className="text-xl font-extrabold text-slate-900">{t.walletTitle}</h2>
           <p className="text-xs text-slate-600 mt-2 max-w-md mx-auto leading-relaxed">
-            {lang === 'hi'
-              ? 'डिजिलॉकर एकीकृत दस्तावेज वॉलेट तक पहुंचने के लिए कृपया अपने छात्र खाते में लॉगिन करें या डेमो खाता चुनें।'
-              : 'Please sign in or select a demo persona to view and manage your verified certificates and DigiLocker documents.'}
+            {'Please sign in or select a demo persona to view and manage your verified certificates and DigiLocker documents.'}
           </p>
         </div>
         {onOpenAuth && (
@@ -98,13 +96,13 @@ export const DocumentWallet: React.FC<DocumentWalletProps> = ({ onOpenAuth }) =>
               className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5"
             >
               <LogIn className="w-3.5 h-3.5" />
-              <span>{lang === 'hi' ? 'लॉगिन करें' : 'Sign In'}</span>
+              <span>{'Sign In'}</span>
             </button>
             <button
               onClick={() => onOpenAuth('demo')}
               className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-bold shadow transition"
             >
-              {lang === 'hi' ? '1-क्लिक डेमो' : '1-Click Demo'}
+              {'1-Click Demo'}
             </button>
           </div>
         )}

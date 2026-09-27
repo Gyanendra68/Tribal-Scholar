@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDemoLogin }) => {
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition border border-emerald-400"
               >
                 <UserPlus className="w-3.5 h-3.5 text-amber-300" />
-                <span>{lang === 'hi' ? 'खाता बनाएं' : 'Create Account'}</span>
+                <span>{'Create Account'}</span>
               </button>
 
               <button
@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDemoLogin }) => {
                 className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold shadow-sm transition border border-blue-500"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{lang === 'hi' ? 'लॉगिन / डेमो' : 'Sign In / Demo'}</span>
+                <span className="hidden sm:inline">{'Sign In / Demo'}</span>
                 <span className="sm:hidden">Login</span>
               </button>
             </>
