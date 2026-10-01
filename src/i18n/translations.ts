@@ -1,4 +1,20 @@
-export type Language = string;
+export type Language =
+  | 'en'
+  | 'as'
+  | 'bn'
+  | 'bho'
+  | 'gu'
+  | 'hi'
+  | 'kok'
+  | 'mai'
+  | 'ml'
+  | 'mr'
+  | 'ne'
+  | 'pa'
+  | 'sa'
+  | 'ta'
+  | 'te'
+  | 'ur';
 
 export interface LanguageMeta {
   code: Language;
@@ -6,15 +22,15 @@ export interface LanguageMeta {
   nativeName: string;
 }
 
-// Indian languages currently listed as DeepL API translation targets.
+// Only Indian languages currently listed by DeepL, plus English.
 export const supportedLanguages: LanguageMeta[] = [
   { code: 'en', name: 'English', nativeName: 'English' },
   { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
   { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
   { code: 'bho', name: 'Bhojpuri', nativeName: 'भोजपुरी' },
-  { code: 'gom', name: 'Konkani', nativeName: 'कोंकणी' },
   { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
   { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+  { code: 'kok', name: 'Konkani', nativeName: 'कोंकणी' },
   { code: 'mai', name: 'Maithili', nativeName: 'मैथिली' },
   { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
   { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },

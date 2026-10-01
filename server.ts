@@ -1,11 +1,10 @@
-
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { initDatabase } from './server/db.js';
 import { apiRouter } from './server/routes.js';
-import { isSupportedTranslationLanguage, translateText } from './server/translation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,17 +24,6 @@ async function startServer() {
   app.use(express.static(path.resolve('public')));
 
   // API router
-  app.post('/api/translate', async (req, res) => {
-    const { text, language } = req.body as { text?: unknown; language?: unknown };
-
-    if (typeof text !== 'string' || !text.trim() || typeof language !== 'string' || !isSupportedTranslationLanguage(language)) {
-      res.status(400).json({ error: 'A non-empty text and supported target language are required.' });
-      return;
-    }
-
-    const result = await translateText(text, language);
-    res.json(result);
-  });
   app.use('/api', apiRouter);
 
   // Health check endpoint
