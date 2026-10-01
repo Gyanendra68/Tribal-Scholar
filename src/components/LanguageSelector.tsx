@@ -21,21 +21,19 @@ export const LanguageSelector: React.FC = () => {
   }, []);
 
   const handleSelect = (code: Language) => {
-    if (code !== lang) {
-      setLang(code);
-    }
+    setLang(code);
     setIsOpen(false);
   };
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef} data-no-translate>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-md text-[11px] font-semibold border border-slate-700 transition shadow-sm"
         aria-expanded={isOpen}
         aria-haspopup="true"
-        title="Select Language"
+        title="Select language"
       >
         <Globe className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
         <span className="font-bold">{activeLang.nativeName}</span>
@@ -45,7 +43,7 @@ export const LanguageSelector: React.FC = () => {
       {isOpen && (
         <div className="absolute right-0 mt-1.5 w-56 rounded-xl bg-white text-slate-900 shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
           <div className="px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Choose Language
+            Choose language
           </div>
           <div className="max-h-64 overflow-y-auto py-1">
             {supportedLanguages.map((item) => {

@@ -1,235 +1,327 @@
 import fs from 'fs';
 import path from 'path';
+import { supportedLanguages } from '../src/i18n/translations.js';
 
-export type SupportedTranslationLanguage =
-  | 'en'
-  | 'hi'
-  | 'bn'
-  | 'te'
-  | 'mr'
-  | 'ta'
-  | 'gu'
-  | 'kn'
-  | 'ml'
-  | 'pa'
-  | 'or'
-  | 'as'
-  | 'ne'
-  | 'ur';
+export const DEEPL_TARGETS = Object.fromEntries(
+  supportedLanguages
+    .filter(({ code }) => code !== 'en')
+    .map(({ code }) => [code, code.toUpperCase()]),
+) as Record<string, string>;
 
-type TranslationCache = {
-  version: 2;
-  sourceLanguage: 'en';
-  translations: Partial<Record<Exclude<SupportedTranslationLanguage, 'en'>, Record<string, string>>>;
-};
+export type DeepLTarget = string;
 
-const CACHE_FILE = path.resolve('data', 'translations-cache-v2.json');
-const REQUEST_TIMEOUT_MS = 8000;
-const FAILURE_COOLDOWN_MS = 30000;
-const MAX_CONCURRENT_REQUESTS = 3;
-const MAX_TEXT_LENGTH = 1000;
+const CACHE_FILE = path.resolve('data/translation-cache.json');
+const DEFAULT_DEEPL_URL = 'https://api-free.deepl.com/v2/translate';
+const MAX_TEXTS_PER_REQUEST = 50;
+const MAX_TEXT_LENGTH = 5000;
+const MAX_RETRIES = 2;
 
-const pendingRequests = new Map<string, Promise<string>>();
-const failedUntil = new Map<string, number>();
+type TranslationCache = Record<string, string>;
 
-const queue: Array<{
-  key: string;
-  text: string;
-  language: Exclude<SupportedTranslationLanguage, 'en'>;
-  resolve: (value: string) => void;
-  reject: (reason?: unknown) => void;
-}> = [];
+let cache: TranslationCache = {};
+let cacheLoaded = false;
+const inFlight = new Map<string, Promise<string>>( );
 
-let activeRequests = 0;
-let cache: TranslationCache | null = null;
-
-function createEmptyCache(): TranslationCache {
-  return {
-    version: 2,
-    sourceLanguage: 'en',
-    translations: {}
-  };
-}
-
-function ensureCacheLoaded(): TranslationCache {
-  if (cache) return cache;
+function loadCache() {
+  if (cacheLoaded) return;
+  cacheLoaded = true;
 
   try {
-    if (!fs.existsSync(CACHE_FILE)) {
-      cache = createEmptyCache();
-      return cache;
+    if (fs.existsSync(CACHE_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        cache = parsed;
+      }
     }
-
-    const parsed = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8')) as Partial<TranslationCache>;
-
-    if (
-      parsed.version !== 2 ||
-      parsed.sourceLanguage !== 'en' ||
-      !parsed.translations ||
-      typeof parsed.translations !== 'object'
-    ) {
-      cache = createEmptyCache();
-      return cache;
-    }
-
-    cache = {
-      version: 2,
-      sourceLanguage: 'en',
-      translations: parsed.translations
-    };
   } catch (error) {
-    console.error('[Translation] Failed to read v2 cache; starting empty:', error);
-    cache = createEmptyCache();
-  }
+    console.warn(
+      '[Translation] Cache load failed; starting empty:',
+      error instanceof Error ? error.message : error,
+    );
 
-  return cache;
+    cache = {};
+  }
 }
 
-function persistCache(): void {
-  const currentCache = ensureCacheLoaded();
-
+function saveCache() {
   try {
     fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
+
     const temporaryFile = `${CACHE_FILE}.tmp`;
-    fs.writeFileSync(temporaryFile, JSON.stringify(currentCache, null, 2), 'utf8');
+
+    fs.writeFileSync(
+      temporaryFile,
+      JSON.stringify(cache),
+      'utf8',
+    );
+
     fs.renameSync(temporaryFile, CACHE_FILE);
   } catch (error) {
-    console.error('[Translation] Failed to persist v2 cache:', error);
+    console.warn(
+      '[Translation] Cache save failed:',
+      error instanceof Error ? error.message : error,
+    );
   }
 }
 
-function cacheKey(text: string, language: Exclude<SupportedTranslationLanguage, 'en'>): string {
-  return `en:${language}:${text}`;
+function normalizeText(text: unknown): string {
+  return typeof text === 'string' ? text.trim() : '';
 }
 
-function getCachedTranslation(
-  text: string,
-  language: Exclude<SupportedTranslationLanguage, 'en'>
-): string | undefined {
-  return ensureCacheLoaded().translations[language]?.[text];
+function cacheKey(target: DeepLTarget, text: string): string {
+  return `en|${target}|${text}`;
 }
 
-function setCachedTranslation(
-  text: string,
-  language: Exclude<SupportedTranslationLanguage, 'en'>,
-  translatedText: string
-): void {
-  const currentCache = ensureCacheLoaded();
-  currentCache.translations[language] ??= {};
-  currentCache.translations[language]![text] = translatedText;
-  persistCache();
+function isRetryable(status: number): boolean {
+  return status === 429 || status >= 500;
 }
 
-async function requestFromMyMemory(
-  text: string,
-  language: Exclude<SupportedTranslationLanguage, 'en'>
-): Promise<string> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  try {
-    const url = new URL('https://api.mymemory.translated.net/get');
-    url.searchParams.set('q', text);
-    url.searchParams.set('langpair', `en|${language}`);
+async function requestDeepL(
+  texts: string[],
+  target: DeepLTarget,
+): Promise<string[]> {
+  const apiKey = process.env.DEEPL_API_KEY?.trim();
 
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) {
-      throw new Error(`MyMemory returned HTTP ${response.status}`);
-    }
+  if (!apiKey) {
+    console.warn(
+      '[Translation] DEEPL_API_KEY is not configured; returning source text.',
+    );
 
-    const payload = await response.json() as {
-      responseData?: { translatedText?: string };
-      responseStatus?: number;
-    };
-
-    const translatedText = payload.responseData?.translatedText?.trim();
-    if (!translatedText || payload.responseStatus === 429) {
-      throw new Error('MyMemory returned no usable translation');
-    }
-
-    return translatedText;
-  } finally {
-    clearTimeout(timeout);
+    return texts;
   }
-}
 
-function processQueue(): void {
-  while (activeRequests < MAX_CONCURRENT_REQUESTS && queue.length > 0) {
-    const item = queue.shift();
-    if (!item) return;
+  const endpoint = (
+    process.env.DEEPL_API_URL || DEFAULT_DEEPL_URL
+  ).replace(/\/$/, '');
 
-    activeRequests += 1;
+  let lastError: Error | undefined;
 
-    requestFromMyMemory(item.text, item.language)
-      .then((translatedText) => {
-        failedUntil.delete(item.key);
-        setCachedTranslation(item.text, item.language, translatedText);
-        item.resolve(translatedText);
-      })
-      .catch((error) => {
-        failedUntil.set(item.key, Date.now() + FAILURE_COOLDOWN_MS);
-        item.reject(error);
-      })
-      .finally(() => {
-        activeRequests -= 1;
-        pendingRequests.delete(item.key);
-        processQueue();
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    try {
+      console.info(
+        `[Translation] DeepL request: ${texts.length} text(s) -> ${DEEPL_TARGETS[target]}`,
+      );
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `DeepL-Auth-Key ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: texts,
+          source_lang: 'EN',
+          target_lang: DEEPL_TARGETS[target],
+          preserve_formatting: true,
+        }),
+        signal: AbortSignal.timeout(15000),
       });
+
+      const traceId = response.headers.get('x-trace-id');
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const message =
+          typeof payload?.message === 'string'
+            ? payload.message
+            : `HTTP ${response.status}`;
+
+        if (response.status === 429) {
+          console.warn('[Translation] DeepL rate limited.');
+        }
+
+        console.warn(
+          `[Translation] DeepL response ${response.status}${
+            traceId ? ` (trace ${traceId})` : ''
+          }: ${message}`,
+        );
+
+        const error = new Error(message);
+
+        if (!isRetryable(response.status) || attempt === MAX_RETRIES) {
+          throw error;
+        }
+
+        lastError = error;
+
+        await sleep(500 * (2 ** attempt));
+        continue;
+      }
+
+      const translations = Array.isArray(payload?.translations)
+        ? payload.translations
+        : [];
+
+      if (
+        translations.length !== texts.length ||
+        translations.some(
+          (item: any) => typeof item?.text !== 'string',
+        )
+      ) {
+        throw new Error(
+          'DeepL returned an invalid translation response.',
+        );
+      }
+
+      console.info(
+        `[Translation] DeepL response: ${translations.length} translation(s)${
+          traceId ? ` (trace ${traceId})` : ''
+        }`,
+      );
+
+      return translations.map((item: any) => item.text as string);
+    } catch (error) {
+      lastError =
+        error instanceof Error
+          ? error
+          : new Error(String(error));
+
+      if (attempt < MAX_RETRIES) {
+        await sleep(500 * (2 ** attempt));
+        continue;
+      }
+    }
   }
+
+  console.error(
+    '[Translation] Translation failed:',
+    lastError?.message || 'Unknown error',
+  );
+
+  throw lastError || new Error('DeepL translation failed.');
 }
 
-export function isSupportedTranslationLanguage(value: string): value is SupportedTranslationLanguage {
-  return ['en', 'hi', 'bn', 'te', 'mr', 'ta', 'gu', 'kn', 'ml', 'pa', 'or', 'as', 'ne', 'ur'].includes(value);
+async function translateMissing(
+  texts: string[],
+  target: DeepLTarget,
+): Promise<string[]> {
+  const translations: string[] = [];
+
+  for (
+    let offset = 0;
+    offset < texts.length;
+    offset += MAX_TEXTS_PER_REQUEST
+  ) {
+    const chunk = texts.slice(
+      offset,
+      offset + MAX_TEXTS_PER_REQUEST,
+    );
+
+    translations.push(
+      ...(await requestDeepL(chunk, target)),
+    );
+  }
+
+  return translations;
 }
 
-export async function translateText(
-  text: string,
-  language: SupportedTranslationLanguage
-): Promise<{ text: string; cached: boolean }> {
-  const normalizedText = text.trim();
+export function isSupportedTarget(
+  value: unknown,
+): value is DeepLTarget {
+  return (
+    typeof value === 'string' &&
+    Object.prototype.hasOwnProperty.call(
+      DEEPL_TARGETS,
+      value,
+    )
+  );
+}
 
-  if (!normalizedText || language === 'en') {
-    return { text, cached: true };
+export async function translateTexts(
+  texts: unknown[],
+  target: DeepLTarget,
+): Promise<Record<string, string>> {
+  loadCache();
+
+  const uniqueTexts = Array.from(
+    new Set(texts.map(normalizeText).filter(Boolean)),
+  ).filter((text) => text.length <= MAX_TEXT_LENGTH);
+
+  const result: Record<string, string> = {};
+  const missing: string[] = [];
+
+  for (const text of uniqueTexts) {
+    const key = cacheKey(target, text);
+
+    if (
+      typeof cache[key] === 'string' &&
+      cache[key].length > 0
+    ) {
+      console.info('[Translation] Cache hit');
+      result[text] = cache[key];
+    } else {
+      console.info('[Translation] Cache miss');
+      missing.push(text);
+    }
   }
 
-  if (normalizedText.length > MAX_TEXT_LENGTH) {
-    return { text, cached: false };
+  if (missing.length === 0) {
+    return result;
   }
 
-  const targetLanguage = language as Exclude<SupportedTranslationLanguage, 'en'>;
-  const cachedTranslation = getCachedTranslation(normalizedText, targetLanguage);
-
-  if (cachedTranslation) {
-    return { text: cachedTranslation, cached: true };
-  }
-
-  const key = cacheKey(normalizedText, targetLanguage);
-  const existingRequest = pendingRequests.get(key);
-  if (existingRequest) {
-    return { text: await existingRequest, cached: false };
-  }
-
-  if ((failedUntil.get(key) || 0) > Date.now()) {
-    return { text, cached: false };
-  }
-
-  const request = new Promise<string>((resolve, reject) => {
-    queue.push({
-      key,
-      text: normalizedText,
-      language: targetLanguage,
-      resolve,
-      reject
+  if (!process.env.DEEPL_API_KEY?.trim()) {
+    missing.forEach((text) => {
+      result[text] = text;
     });
-    processQueue();
-  });
 
-  pendingRequests.set(key, request);
-
-  try {
-    return { text: await request, cached: false };
-  } catch (error) {
-    console.error(`[Translation] MyMemory request failed for ${targetLanguage}:`, error);
-    return { text, cached: false };
+    return result;
   }
+
+  const newTexts = missing.filter(
+    (text) => !inFlight.has(cacheKey(target, text)),
+  );
+
+  if (newTexts.length > 0) {
+    const sharedRequest = translateMissing(
+      newTexts,
+      target,
+    ).then((translated) => {
+      translated.forEach((value, index) => {
+        const source = newTexts[index];
+        const key = cacheKey(target, source);
+
+        const safeValue =
+          typeof value === 'string' && value.trim()
+            ? value
+            : source;
+
+        cache[key] = safeValue;
+
+        console.info(
+          '[Translation] Translation saved to cache',
+        );
+      });
+
+      saveCache();
+
+      return translated;
+    });
+
+    newTexts.forEach((text, index) => {
+      const key = cacheKey(target, text);
+
+      inFlight.set(
+        key,
+        sharedRequest
+          .then((translated) => translated[index] || text)
+          .finally(() => inFlight.delete(key)),
+      );
+    });
+  }
+
+  await Promise.all(
+    missing.map(async (text) => {
+      const key = cacheKey(target, text);
+      const translated = await inFlight.get(key);
+
+      result[text] = translated || text;
+    }),
+  );
+
+  return result;
 }
