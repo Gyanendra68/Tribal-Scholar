@@ -23,6 +23,7 @@ function isSupportedLanguage(value: string | null): value is Language {
     value === 'en' ||
     value === 'as' ||
     value === 'bn' ||
+    value === 'bho' ||
     value === 'gu' ||
     value === 'hi' ||
     value === 'kok' ||
