@@ -399,9 +399,12 @@ apiRouter.post('/eligibility/check', (req: Request, res: Response) => {
     }
 
     // ST Status Verification check
-    if (input.st_status !== 'VERIFIED') {
+    if (input.st_status === 'VERIFIED' || input.stStatus === 'VERIFIED') {
+      needsVerification = false;
+    } else {
       needsVerification = true;
     }
+
 
     // 2. Annual Family Income Check
     const income = Number(
