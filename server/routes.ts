@@ -373,10 +373,48 @@ apiRouter.get('/schemes/:id', (req: Request, res: Response) => {
 
 // Real Rule-based Eligibility Evaluation (Public with Optional Auth)
 apiRouter.post('/eligibility/check', (req: Request, res: Response) => {
-  const profile = req.body?.profile ?? {};
+  // Use the logged-in student's database profile when a valid JWT is available.
+  // Keep the modified eligibility parameters from the request body/profile as overrides.
+  let authProfile: Record<string, any> = {};
+
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+
+      if (decoded?.id) {
+        const dbProfile = queryOne<any>(
+          'SELECT * FROM profiles WHERE user_id = ?',
+          [decoded.id]
+        );
+
+        if (dbProfile) {
+          authProfile = {
+            ...dbProfile,
+            // Expose the DB snake_case fields through the same camelCase
+            // parameters used by the modified eligibility engine.
+            stStatus: dbProfile.st_status,
+            familyAnnualIncome: dbProfile.family_annual_income,
+            courseLevel: dbProfile.course_level,
+            institutionType: dbProfile.institution_type,
+            academicPercentage: dbProfile.academic_percentage,
+            pvtgStatus: Boolean(dbProfile.pvtg_status),
+            class_year: dbProfile.class_year,
+            category: dbProfile.category
+          };
+        }
+      }
+    } catch {
+      // Optional authentication: continue with request-provided profile.
+    }
+  }
+
+  const requestProfile = req.body?.profile ?? {};
   const input: Record<string, any> = {
     category: 'ST',
-    ...(profile as Record<string, any>),
+    ...authProfile,
+    ...(requestProfile as Record<string, any>),
     ...(req.body as Record<string, any>)
   };
 
@@ -466,7 +504,15 @@ apiRouter.post('/eligibility/check', (req: Request, res: Response) => {
       const validCourse = ['POST_MATRIC_HS', 'UNDERGRADUATE', 'POSTGRADUATE'].includes(courseLevel);
 
       // FIX: Added PREMIER_INSTITUTE_IIT_NIT_IIM to valid institutions
-      const validInstitution = [
+      const validInstitution =
+  courseLevel === 'POST_MATRIC_HS'
+    ? [
+        'GOVERNMENT_SCHOOL',
+        'GOVERNMENT_AIDED_SCHOOL',
+        'RECOGNIZED_SCHOOL',
+        'SCHOOL'
+      ].includes(instType)
+    : [
         'COLLEGE',
         'STATE_UNIVERSITY',
         'CENTRAL_UNIVERSITY',
@@ -634,6 +680,41 @@ apiRouter.post('/eligibility/check', (req: Request, res: Response) => {
   });
 
   res.json({ results });
+});
+
+// Get all applications for the authenticated student
+apiRouter.get('/applications', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
+  const apps = queryAll<any>(
+    `SELECT a.*, s.name_en as scheme_name_en, s.name_hi as scheme_name_hi, s.code as scheme_code,
+            s.sample_sanction_amount,
+            p.st_certificate_no, p.family_annual_income, p.institution_name, p.course_name
+     FROM applications a
+     JOIN schemes s ON a.scheme_id = s.id
+     LEFT JOIN profiles p ON a.student_id = p.user_id
+     WHERE a.student_id = ?
+     ORDER BY a.updated_at DESC`,
+    [req.user?.id]
+  );
+
+  res.json(apps.map((a) => ({
+    id: a.id,
+    applicationNumber: a.application_number,
+    studentId: a.student_id,
+    schemeId: a.scheme_id,
+    schemeCode: a.scheme_code,
+    schemeNameEn: a.scheme_name_en,
+    schemeNameHi: a.scheme_name_hi,
+    academicYear: a.academic_year,
+    status: a.status,
+    submittedAt: a.submitted_at,
+    updatedAt: a.updated_at,
+    createdAt: a.created_at,
+    stCertificateNo: a.st_certificate_no,
+    familyAnnualIncome: a.family_annual_income,
+    institutionName: a.institution_name,
+    courseName: a.course_name,
+    sanctionAmount: a.sample_sanction_amount
+  })));
 });
 
 // Get single application with complete relational sub-records
