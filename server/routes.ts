@@ -372,7 +372,13 @@ apiRouter.get('/schemes/:id', (req: Request, res: Response) => {
 });
 
 // Real Rule-based Eligibility Evaluation (Public with Optional Auth)
-const input = { category: 'ST', ...profile, ...req.body };
+apiRouter.post('/eligibility/check', (req: Request, res: Response) => {
+  const profile = req.body?.profile ?? {};
+  const input: Record<string, any> = {
+    category: 'ST',
+    ...(profile as Record<string, any>),
+    ...(req.body as Record<string, any>)
+  };
 
   const schemes = queryAll<any>('SELECT * FROM schemes WHERE is_active = 1');
   const rules = queryAll<any>('SELECT * FROM eligibility_rules');
@@ -402,7 +408,6 @@ const input = { category: 'ST', ...profile, ...req.body };
       input.familyAnnualIncome ?? input.family_annual_income ?? 0
     );
 
-
     if (income <= scheme.max_income_limit) {
       reasons.push(`Annual family income (₹${income.toLocaleString('en-IN')}) is within the scheme ceiling of ₹${scheme.max_income_limit.toLocaleString('en-IN')}.`);
       requiredDocuments.push('Current Financial Year Income Certificate');
@@ -411,201 +416,196 @@ const input = { category: 'ST', ...profile, ...req.body };
     }
 
     // 3. Scheme specific criteria
-    const courseLevel =
-  input.courseLevel ?? input.course_level;
+    const courseLevel = input.courseLevel ?? input.course_level;
+    const instType = input.institutionType ?? input.institution_type;
+    const percentage = Number(
+      input.academicPercentage ?? input.academic_percentage ?? 0
+    );
 
-const instType =
-  input.institutionType ?? input.institution_type;
-
-const percentage = Number(
-  input.academicPercentage ?? input.academic_percentage ?? 0
-);
-
- // Initialize structure for overlapping flags if not present
-scheme.isPrimaryRecommendation = true; 
-scheme.isFallback = false;
-scheme.customSystemNote = '';
-
-if (scheme.code === 'PRE_MATRIC') {
-  // Pre-Matric = Class IX/X + eligible school
-  const validCourse =
-    courseLevel === 'PRE_MATRIC' ||
-    ['9', '10', 'CLASS_9', 'CLASS_10'].includes(input.class_year);
-
-  const validInstitution = [
-    'GOVERNMENT_SCHOOL',
-    'GOVERNMENT_AIDED_SCHOOL',
-    'RECOGNIZED_SCHOOL',
-    'SCHOOL'
-  ].includes(instType);
-
-  if (validCourse) {
-    reasons.push('Applicant is studying in Class IX or X, which falls under the Pre-Matric level.');
-  } else {
-    failedConditions.push('Pre-Matric Scholarship is for eligible students studying in Class IX or X.');
-  }
-
-  if (validInstitution) {
-    reasons.push('Applicant is enrolled in an eligible school.');
-  } else {
-    failedConditions.push('Applicant must be enrolled in an eligible school for Pre-Matric Scholarship.');
-  }
-
-  requiredDocuments.push(
-    'ST Caste Certificate (issued by Competent Authority)',
-    'Current Financial Year Income Certificate',
-    'School Enrollment/Bonafide Certificate'
-  );
-
-} else if (scheme.code === 'POST_MATRIC') {
-  // Post-Matric = Class XI onwards / higher education
-  const validCourse = ['POST_MATRIC_HS', 'UNDERGRADUATE', 'POSTGRADUATE'].includes(courseLevel);
-
-  // FIX: Added PREMIER_INSTITUTE_IIT_NIT_IIM to valid institutions
-  const validInstitution = [
-    'COLLEGE',
-    'STATE_UNIVERSITY',
-    'CENTRAL_UNIVERSITY',
-    'CENTRAL_INSTITUTE',
-    'GOVERNMENT_INSTITUTION',
-    'RECOGNIZED_INSTITUTION',
-    'PREMIER_INSTITUTE_IIT_NIT_IIM' 
-  ].includes(instType);
-
-  if (validCourse) {
-    reasons.push('Applicant is pursuing post-secondary education.');
-  } else {
-    failedConditions.push('Post-Matric Scholarship requires enrollment in eligible post-secondary education.');
-  }
-
-  if (validInstitution) {
-    reasons.push('Applicant is enrolled in an eligible higher-education institution.');
-  } else {
-    failedConditions.push('Applicant must be enrolled in a recognized higher-education institution.');
-  }
-
-  // OVERLAP LOGIC: If undergraduate/postgraduate at a Premier Institute, demote to fallback
-  if (['UNDERGRADUATE', 'POSTGRADUATE'].includes(courseLevel) && instType === 'PREMIER_INSTITUTE_IIT_NIT_IIM') {
-    scheme.isPrimaryRecommendation = false;
-    scheme.isFallback = true;
-    scheme.customSystemNote = 'Since you are in a Premier Institute, you should prioritize the Top Class Scholarship. Apply for Post-Matric only as a backup if Top Class slots are full.';
-  }
-
-  requiredDocuments.push(
-    'ST Caste Certificate (issued by Competent Authority)',
-    'Current Financial Year Income Certificate',
-    'Institute Admission/Enrollment Proof'
-  );
-
-} else if (scheme.code === 'TOP_CLASS') {
-  // Top Class requires BOTH: Appropriate course & Identified premier institute
-  const validCourse = ['UNDERGRADUATE', 'POSTGRADUATE'].includes(courseLevel);
-  const premierInstitute = instType === 'PREMIER_INSTITUTE_IIT_NIT_IIM';
-
-  if (validCourse) {
-    reasons.push('Applicant is pursuing an eligible higher-education course.');
-  } else {
-    failedConditions.push('Top Class Scholarship requires an eligible undergraduate or postgraduate course. (Note: Research/Ph.D. courses are not covered under this scheme).');
-  }
-
-  if (premierInstitute) {
-    reasons.push('Applicant is enrolled in an identified premier institute.');
-  } else {
-    failedConditions.push('Top Class Scholarship requires admission to an identified premier institute.');
-  }
-
-  // OVERLAP LOGIC: Highlight as the primary choice for premier undergrads
-  if (validCourse && premierInstitute) {
+    // Initialize structure for overlapping flags if not present
     scheme.isPrimaryRecommendation = true;
-    scheme.customSystemNote = 'Highly Recommended! This scheme offers maximum benefits (Full tuition fees + Laptop grant) for premier institute students.';
-  }
+    scheme.isFallback = false;
+    scheme.customSystemNote = '';
 
-  if (input.pvtg_status || input.pvtgStatus) {
-    reasons.push('Special consideration/priority may apply for Particularly Vulnerable Tribal Group (PVTG).');
-  }
+    if (scheme.code === 'PRE_MATRIC') {
+      // Pre-Matric = Class IX/X + eligible school
+      const validCourse =
+        courseLevel === 'PRE_MATRIC' ||
+        ['9', '10', 'CLASS_9', 'CLASS_10'].includes(input.class_year);
 
-  requiredDocuments.push(
-    'ST Caste Certificate (issued by Competent Authority)',
-    'Current Financial Year Income Certificate',
-    'Institute Admission/Enrollment Proof'
-  );
+      const validInstitution = [
+        'GOVERNMENT_SCHOOL',
+        'GOVERNMENT_AIDED_SCHOOL',
+        'RECOGNIZED_SCHOOL',
+        'SCHOOL'
+      ].includes(instType);
 
-} else if (scheme.code === 'NFST') {
-  // NFST requires BOTH: M.Phil/Ph.D. + Eligible research institution
-  const validCourse = courseLevel === 'MPHIL_PHD';
+      if (validCourse) {
+        reasons.push('Applicant is studying in Class IX or X, which falls under the Pre-Matric level.');
+      } else {
+        failedConditions.push('Pre-Matric Scholarship is for eligible students studying in Class IX or X.');
+      }
 
-  // FIX: Added PREMIER_INSTITUTE_IIT_NIT_IIM to valid institutions
-  const validInstitution = [
-    'CENTRAL_UNIVERSITY',
-    'STATE_UNIVERSITY',
-    'CENTRAL_INSTITUTE',
-    'RECOGNIZED_INSTITUTION',
-    'RECOGNIZED_RESEARCH_INSTITUTION',
-    'GOVERNMENT_INSTITUTION',
-    'PREMIER_INSTITUTE_IIT_NIT_IIM'
-  ].includes(instType);
+      if (validInstitution) {
+        reasons.push('Applicant is enrolled in an eligible school.');
+      } else {
+        failedConditions.push('Applicant must be enrolled in an eligible school for Pre-Matric Scholarship.');
+      }
 
-  if (validCourse) {
-    reasons.push('Applicant is pursuing M.Phil/Ph.D. research.');
-  } else {
-    failedConditions.push('NFST requires enrollment in an eligible M.Phil/Ph.D. research programme.');
-  }
+      requiredDocuments.push(
+        'ST Caste Certificate (issued by Competent Authority)',
+        'Current Financial Year Income Certificate',
+        'School Enrollment/Bonafide Certificate'
+      );
 
-  if (validInstitution) {
-    reasons.push('Applicant is enrolled in an eligible higher-education/research institution.');
-  } else {
-    failedConditions.push('NFST requires enrollment in an eligible higher-education or research institution.');
-  }
+    } else if (scheme.code === 'POST_MATRIC') {
+      // Post-Matric = Class XI onwards / higher education
+      const validCourse = ['POST_MATRIC_HS', 'UNDERGRADUATE', 'POSTGRADUATE'].includes(courseLevel);
 
-  // OVERLAP LOGIC: Ensure clear focus for PhD scholars
-  if (validCourse) {
-    scheme.isPrimaryRecommendation = true;
-    scheme.customSystemNote = 'This is the dedicated Central Fellowship for ST research scholars. You cannot combine this with any other state or central stipends.';
-  }
+      // FIX: Added PREMIER_INSTITUTE_IIT_NIT_IIM to valid institutions
+      const validInstitution = [
+        'COLLEGE',
+        'STATE_UNIVERSITY',
+        'CENTRAL_UNIVERSITY',
+        'CENTRAL_INSTITUTE',
+        'GOVERNMENT_INSTITUTION',
+        'RECOGNIZED_INSTITUTION',
+        'PREMIER_INSTITUTE_IIT_NIT_IIM'
+      ].includes(instType);
 
-  requiredDocuments.push(
-    'ST Caste Certificate (issued by Competent Authority)',
-    'Ph.D./M.Phil Admission or Enrollment Proof',
-    'Research/University Documents'
-  );
+      if (validCourse) {
+        reasons.push('Applicant is pursuing post-secondary education.');
+      } else {
+        failedConditions.push('Post-Matric Scholarship requires enrollment in eligible post-secondary education.');
+      }
 
-} else if (scheme.code === 'NOS') {
-  // National Overseas Scholarship requires: Overseas course, foreign uni, academic percentage
-  const validCourse = courseLevel === 'OVERSEAS_MASTERS_PHD';
-  const foreignInstitution = instType === 'FOREIGN_UNIVERSITY';
-  const validPercentage = percentage >= 55;
+      if (validInstitution) {
+        reasons.push('Applicant is enrolled in an eligible higher-education institution.');
+      } else {
+        failedConditions.push('Applicant must be enrolled in a recognized higher-education institution.');
+      }
 
-  if (validCourse) {
-    reasons.push('Applicant is pursuing an eligible overseas Master’s/Doctoral programme.');
-  } else {
-    failedConditions.push('National Overseas Scholarship requires eligible overseas Master’s or Doctoral study.');
-  }
+      // OVERLAP LOGIC: If undergraduate/postgraduate at a Premier Institute, demote to fallback
+      if (['UNDERGRADUATE', 'POSTGRADUATE'].includes(courseLevel) && instType === 'PREMIER_INSTITUTE_IIT_NIT_IIM') {
+        scheme.isPrimaryRecommendation = false;
+        scheme.isFallback = true;
+        scheme.customSystemNote = 'Since you are in a Premier Institute, you should prioritize the Top Class Scholarship. Apply for Post-Matric only as a backup if Top Class slots are full.';
+      }
 
-  if (foreignInstitution) {
-    reasons.push('Applicant is enrolled in an eligible foreign university/institution.');
-  } else {
-    failedConditions.push('National Overseas Scholarship requires an eligible foreign university/institution.');
-  }
+      requiredDocuments.push(
+        'ST Caste Certificate (issued by Competent Authority)',
+        'Current Financial Year Income Certificate',
+        'Institute Admission/Enrollment Proof'
+      );
 
-  if (validPercentage) {
-    reasons.push(`Applicant secured ${percentage}% in the qualifying examination.`);
-  } else {
-    failedConditions.push(`Secured ${percentage}% in qualifying examination; minimum 55% marks required.`);
-  }
+    } else if (scheme.code === 'TOP_CLASS') {
+      // Top Class requires BOTH: Appropriate course & Identified premier institute
+      const validCourse = ['UNDERGRADUATE', 'POSTGRADUATE'].includes(courseLevel);
+      const premierInstitute = instType === 'PREMIER_INSTITUTE_IIT_NIT_IIM';
 
-  // OVERLAP LOGIC: Family restriction note
-  if (validCourse && foreignInstitution && validPercentage) {
-    scheme.customSystemNote = 'Note: This scheme is restricted to only one child per family.';
-  }
+      if (validCourse) {
+        reasons.push('Applicant is pursuing an eligible higher-education course.');
+      } else {
+        failedConditions.push('Top Class Scholarship requires an eligible undergraduate or postgraduate course. (Note: Research/Ph.D. courses are not covered under this scheme).');
+      }
 
-  requiredDocuments.push(
-    'ST Caste Certificate (issued by Competent Authority)',
-    'Academic Mark Sheets/Certificates',
-    'Foreign University Admission/Offer Letter',
-    'Current Financial Year Income Certificate'
-  );
-}
+      if (premierInstitute) {
+        reasons.push('Applicant is enrolled in an identified premier institute.');
+      } else {
+        failedConditions.push('Top Class Scholarship requires admission to an identified premier institute.');
+      }
 
+      // OVERLAP LOGIC: Highlight as the primary choice for premier undergrads
+      if (validCourse && premierInstitute) {
+        scheme.isPrimaryRecommendation = true;
+        scheme.customSystemNote = 'Highly Recommended! This scheme offers maximum benefits (Full tuition fees + Laptop grant) for premier institute students.';
+      }
+
+      if (input.pvtg_status || input.pvtgStatus) {
+        reasons.push('Special consideration/priority may apply for Particularly Vulnerable Tribal Group (PVTG).');
+      }
+
+      requiredDocuments.push(
+        'ST Caste Certificate (issued by Competent Authority)',
+        'Current Financial Year Income Certificate',
+        'Institute Admission/Enrollment Proof'
+      );
+
+    } else if (scheme.code === 'NFST') {
+      // NFST requires BOTH: M.Phil/Ph.D. + Eligible research institution
+      const validCourse = courseLevel === 'MPHIL_PHD';
+
+      // FIX: Added PREMIER_INSTITUTE_IIT_NIT_IIM to valid institutions
+      const validInstitution = [
+        'CENTRAL_UNIVERSITY',
+        'STATE_UNIVERSITY',
+        'CENTRAL_INSTITUTE',
+        'RECOGNIZED_INSTITUTION',
+        'RECOGNIZED_RESEARCH_INSTITUTION',
+        'GOVERNMENT_INSTITUTION',
+        'PREMIER_INSTITUTE_IIT_NIT_IIM'
+      ].includes(instType);
+
+      if (validCourse) {
+        reasons.push('Applicant is pursuing M.Phil/Ph.D. research.');
+      } else {
+        failedConditions.push('NFST requires enrollment in an eligible M.Phil/Ph.D. research programme.');
+      }
+
+      if (validInstitution) {
+        reasons.push('Applicant is enrolled in an eligible higher-education/research institution.');
+      } else {
+        failedConditions.push('NFST requires enrollment in an eligible higher-education or research institution.');
+      }
+
+      // OVERLAP LOGIC: Ensure clear focus for PhD scholars
+      if (validCourse) {
+        scheme.isPrimaryRecommendation = true;
+        scheme.customSystemNote = 'This is the dedicated Central Fellowship for ST research scholars. You cannot combine this with any other state or central stipends.';
+      }
+
+      requiredDocuments.push(
+        'ST Caste Certificate (issued by Competent Authority)',
+        'Ph.D./M.Phil Admission or Enrollment Proof',
+        'Research/University Documents'
+      );
+
+    } else if (scheme.code === 'NOS') {
+      // National Overseas Scholarship requires: Overseas course, foreign uni, academic percentage
+      const validCourse = courseLevel === 'OVERSEAS_MASTERS_PHD';
+      const foreignInstitution = instType === 'FOREIGN_UNIVERSITY';
+      const validPercentage = percentage >= 55;
+
+      if (validCourse) {
+        reasons.push('Applicant is pursuing an eligible overseas Master’s/Doctoral programme.');
+      } else {
+        failedConditions.push('National Overseas Scholarship requires eligible overseas Master’s or Doctoral study.');
+      }
+
+      if (foreignInstitution) {
+        reasons.push('Applicant is enrolled in an eligible foreign university/institution.');
+      } else {
+        failedConditions.push('National Overseas Scholarship requires an eligible foreign university/institution.');
+      }
+
+      if (validPercentage) {
+        reasons.push(`Applicant secured ${percentage}% in the qualifying examination.`);
+      } else {
+        failedConditions.push(`Secured ${percentage}% in qualifying examination; minimum 55% marks required.`);
+      }
+
+      // OVERLAP LOGIC: Family restriction note
+      if (validCourse && foreignInstitution && validPercentage) {
+        scheme.customSystemNote = 'Note: This scheme is restricted to only one child per family.';
+      }
+
+      requiredDocuments.push(
+        'ST Caste Certificate (issued by Competent Authority)',
+        'Academic Mark Sheets/Certificates',
+        'Foreign University Admission/Offer Letter',
+        'Current Financial Year Income Certificate'
+      );
+    }
 
     // Determine Final Status
     let status: 'ELIGIBLE' | 'NOT_ELIGIBLE' | 'NEEDS_VERIFICATION' = 'ELIGIBLE';
